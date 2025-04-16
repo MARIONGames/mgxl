@@ -1,13 +1,15 @@
-handlers.banPlayer = function (args, context) {
+handlers.BanPlayer = function (args, context) {
+    var reason = args.reason || "No reason provided";
+    var durationMinutes = args.durationMinutes || 1440;
+
+    var durationSeconds = durationMinutes * 60;
+
     var banRequest = {
         PlayFabId: currentPlayerId,
-        Reason: args.reason || "Cheating",
-        DurationInHours: args.permanent ? null : 720
+        Reason: reason,
+        DurationInSeconds: durationSeconds
     };
 
-    var result = server.BanUsers({
-        Bans: [banRequest]
-    });
-
-    return { result: result };
+    var result = server.BanUsers({ Bans: [banRequest] });
+    return { message: "Player banned for " + durationMinutes + " minute(s)", banDetails: result.BanData };
 };
