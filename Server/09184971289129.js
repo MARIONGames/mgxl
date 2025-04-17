@@ -1,4 +1,0 @@
-handlers.GetUserData = function (args)
-{
-
-};
