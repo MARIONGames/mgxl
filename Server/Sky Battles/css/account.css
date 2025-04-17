@@ -1,0 +1,49 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #10141c;
+  color: #fff;
+  padding: 40px;
+}
+
+.settings-container {
+  max-width: 500px;
+  margin: 0 auto;
+  background: #1b222d;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.section {
+  margin-bottom: 25px;
+}
+
+.section h2 {
+  margin-bottom: 10px;
+}
+
+input, select {
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: none;
+}
+
+button {
+  background: #4c8ef7;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #376ad2;
+}
+
+#statusMessage {
+  margin-top: 20px;
+  font-weight: bold;
+}
