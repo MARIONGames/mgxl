@@ -5,19 +5,19 @@ handlers.BanUserByUsername = function (args) {
 
     if (!username) return { error: "Username is required" };
 
-    var userResult = server.GetUserInternalData({ Keys: [username] });
-    var playFabId = userResult.Data[username];
+    var accountInfo = server.GetUserAccountInfo({ Username: username });
 
-    if (!playFabId) return { error: "User not found." };
+    if (!accountInfo || !accountInfo.UserInfo || !accountInfo.UserInfo.PlayFabId)
+        return { error: "User not found." };
+
+    var playFabId = accountInfo.UserInfo.PlayFabId;
 
     var banEntry = {
         PlayFabId: playFabId,
         Reason: reason
     };
 
-    if (duration) {
-        banEntry.DurationInMinutes = duration;
-    }
+    if (duration) banEntry.DurationInMinutes = duration;
 
     var result = server.BanUsers({ Bans: [banEntry] });
     return { result: "User banned successfully", details: result };
@@ -28,10 +28,12 @@ handlers.UnbanUserByUsername = function (args) {
 
     if (!username) return { error: "Username is required" };
 
-    var userResult = server.GetUserInternalData({ Keys: [username] });
-    var playFabId = userResult.Data[username];
+    var accountInfo = server.GetUserAccountInfo({ Username: username });
 
-    if (!playFabId) return { error: "User not found." };
+    if (!accountInfo || !accountInfo.UserInfo || !accountInfo.UserInfo.PlayFabId)
+        return { error: "User not found." };
+
+    var playFabId = accountInfo.UserInfo.PlayFabId;
 
     var unbanResult = server.UnbanUsers({ PlayFabIds: [playFabId] });
     return { result: "User unbanned", details: unbanResult };
