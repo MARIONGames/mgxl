@@ -311,7 +311,6 @@ local ButtonTeleport3 = TeleportTab:CreateButton({
 })
 
 local MiscTab = Window:CreateTab("🎲 Misc", nil)
-local EspSection = MiscTab:CreateSection("Player ESP")
 
 local espLoopConnection = nil
 local playerHighlights = {}
@@ -333,11 +332,11 @@ local function UpdateESP()
                 if not highlight then
                     highlight = Instance.new("Highlight")
                     highlight.Name = "ESP_Highlight_" .. playerEntity.Name
-                    highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
                     highlight.FillTransparency = 0.7
-                    highlight.OutlineColor = Color3.fromRGB(0, 100, 0)
+                    highlight.OutlineColor = Color3.fromRGB(150, 0, 0)
                     highlight.OutlineTransparency = 0.2
-                    highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Changed to AlwaysOnTop
                     highlight.Enabled = true
                     highlight.Parent = CoreGui
                     playerHighlights[playerEntity.Name] = highlight
@@ -364,7 +363,7 @@ local function UpdateESP()
      end
 end
 
-local EspButton = EspSection:CreateButton({
+local EspButton = MiscTab:CreateButton({
     Name = "Toggle Player ESP",
     Callback = function()
         _G.espEnabled = not _G.espEnabled
