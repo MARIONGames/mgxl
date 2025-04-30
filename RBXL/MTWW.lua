@@ -1,15 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 if not Rayfield then
-    warn("Failed to load Rayfield UI Library. The URL might be down or incorrect.")
+    warn("Failed to load MTWW. The URL might be down or incorrect.")
     return
 end
-
-_G.infinJumpEnabled = false
-_G.infinJumpHandlerActive = false
-_G.autoFarmGoldEnabled = false
-_G.espEnabled = false
-_G.aimbotEnabled = false
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -18,79 +12,85 @@ local CoreGui = game:GetService("CoreGui")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 
+_G.infinjump = false
+_G.infinJumpStarted = nil
+_G.isAutoFarmingGold = false
+_G.espEnabled = false
+
+local windowName = "MTWW - Public Game"
+if game.PrivateServerId ~= "" and game.PrivateServerId ~= nil then
+    windowName = "MTWW - Private Game"
+end
+
 local Window = Rayfield:CreateWindow({
-    Name = "MTWW 1.0.7 - Public Game (Revised)",
+    Name = windowName,
     LoadingTitle = "The Wild West",
-    LoadingSubtitle = "MARION THE WILD WEST.",
+    LoadingSubtitle = "Script Is In Test Edition",
     ConfigurationSaving = {
         Enabled = true,
-        FolderName = "MTWW_Config",
-        FileName = "MTWW_Settings"
+        FolderName = "MTWW",
+        FileName = "MTWW"
     },
     Discord = {
         Enabled = false,
         Invite = "noinvitelink",
         RememberJoins = true
     },
-    KeySystem = true,
+    KeySystem = false,
     KeySettings = {
-        Title = "Key | MTWW",
-        Subtitle = "Key Verify",
-        Note = "Key In marion-games.com/mtww.key (Ensure URL is valid)",
-        FileName = "MTWWKey",
-        SaveKey = true,
+        Title = "Key | Youtube Hub",
+        Subtitle = "Key System",
+        Note = "Key In Discord Server",
+        FileName = "YoutubeHubKey1",
+        SaveKey = false,
         GrabKeyFromSite = true,
-        Key = {"https://mgxl.marion-games.com/SSS/Key", "006"}
+        Key = {"006", "Magic Word"}
     }
 })
 
+local MainTab = Window:CreateTab("🏠 Home", nil)
+local MainSection = MainTab:CreateSection("Main")
+
 Rayfield:Notify({
-    Title = "Script Executed",
-    Content = "MTWW Revised Loaded!",
-    Duration = 7,
+    Title = "You executed the script",
+    Content = "Very cool gui",
+    Duration = 5,
     Image = 13047715178,
     Actions = {
         Ignore = {
             Name = "Okay!",
             Callback = function()
-                print("MARION THE WILD WEST (Revised) LOADED! HAVE FUN!")
+                print("MARION THE WILD WEST LOADED!!! HAVE FUN!")
             end
         }
     }
 })
 
-local MainTab = Window:CreateTab("🏠 Home", nil)
-local MainSection = MainTab:CreateSection("Movement")
-
 local Button = MainTab:CreateButton({
     Name = "Infinite Jump Toggle",
     Callback = function()
-        _G.infinJumpEnabled = not _G.infinJumpEnabled
+        _G.infinjump = not _G.infinjump
 
-        StarterGui:SetCore("SendNotification", {
-            Title = "Infinite Jump",
-            Text = "Infinite Jump " .. (_G.infinJumpEnabled and "Activated!" or "Deactivated!"),
-            Duration = 3
-        })
+        if _G.infinJumpStarted == nil then
+            _G.infinJumpStarted = true
 
-        if not _G.infinJumpHandlerActive then
-            _G.infinJumpHandlerActive = true
-            print("Infinite Jump Handler Activated.")
+            StarterGui:SetCore("SendNotification", {
+                Title = "Youtube Hub",
+                Text = "Infinite Jump Activated!",
+                Duration = 5
+            })
 
             local plr = LocalPlayer
-            local mouse = plr:GetMouse()
-
-            mouse.KeyDown:Connect(function(key)
-                if not _G.infinJumpEnabled then return end
-
-                local char = plr.Character
-                local humanoid = char and char:FindFirstChildOfClass('Humanoid')
-
-                if key:byte() == 32 and humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                    task.wait()
-                    if humanoid:GetState() == Enum.HumanoidStateType.Jumping then
-                         humanoid:ChangeState(Enum.HumanoidStateType.Seated)
+            local m = plr:GetMouse()
+            m.KeyDown:connect(function(k)
+                if _G.infinjump then
+                    if k:byte() == 32 then
+                        local humanoid = plr.Character and plr.Character:FindFirstChildOfClass('Humanoid')
+                        if humanoid then
+                            humanoid:ChangeState('Jumping')
+                            wait()
+                            humanoid:ChangeState('Seated')
+                        end
                     end
                 end
             end)
@@ -100,14 +100,14 @@ local Button = MainTab:CreateButton({
 
 local Slider1 = MainTab:CreateSlider({
     Name = "WalkSpeed Slider",
-    Range = {16, 350},
+    Range = {1, 350},
     Increment = 1,
-    Suffix = " Speed",
+    Suffix = "Speed",
     CurrentValue = 16,
     Flag = "sliderws",
     Callback = function(Value)
         local char = LocalPlayer.Character
-        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+        local humanoid = char and char:FindFirstChild("Humanoid")
         if humanoid then
             humanoid.WalkSpeed = Value
         end
@@ -116,54 +116,55 @@ local Slider1 = MainTab:CreateSlider({
 
 local Slider2 = MainTab:CreateSlider({
     Name = "JumpPower Slider",
-    Range = {50, 350},
+    Range = {1, 350},
     Increment = 1,
-    Suffix = " Power",
+    Suffix = "Power",
     CurrentValue = 50,
     Flag = "sliderjp",
     Callback = function(Value)
-        local char = LocalPlayer.Character
-        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
+         local char = LocalPlayer.Character
+         local humanoid = char and char:FindFirstChild("Humanoid")
+         if humanoid then
             humanoid.JumpPower = Value
         end
     end,
 })
 
+local Dropdown = MainTab:CreateDropdown({
+    Name = "Select Area",
+    Options = {"Starter World", "Pirate Island", "Pineapple Paradise"},
+    CurrentOption = "Starter World",
+    MultipleOptions = false,
+    Flag = "dropdownarea",
+    Callback = function(Option)
+        print(Option)
+    end,
+})
+
 local Input = MainTab:CreateInput({
-    Name = "Set Walkspeed",
-    PlaceholderText = "Enter speed (e.g., 50)",
+    Name = "Walkspeed",
+    PlaceholderText = "1-500",
     RemoveTextAfterFocusLost = true,
     Callback = function(Text)
         local num = tonumber(Text)
-        if num then
-             local char = LocalPlayer.Character
-             local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-             if humanoid then
-                 humanoid.WalkSpeed = math.clamp(num, 1, 500)
-                 Slider1:Set(humanoid.WalkSpeed)
-                 print("WalkSpeed set to:", humanoid.WalkSpeed)
-             end
-        else
-            print("Invalid number entered for WalkSpeed.")
+        local char = LocalPlayer.Character
+        local humanoid = char and char:FindFirstChild("Humanoid")
+        if num and humanoid then
+            humanoid.WalkSpeed = num
         end
     end,
 })
 
-local FarmSection = MainTab:CreateSection("Automation")
-_G.autoFarmGoldEnabled = false
+local OtherSection = MainTab:CreateSection("Other")
 
 local function AutoFarmGold()
     local player = LocalPlayer
-    print("AutoFarmGold: Coroutine Started.")
-
-    while _G.autoFarmGoldEnabled and task.wait(0.1) do
+    print("AutoFarm: Started.")
+    while _G.isAutoFarmingGold and task.wait(0.1) do
         local character = player.Character
         local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-        if not (rootPart and humanoid and humanoid.Health > 0) then
-            print("AutoFarmGold: Waiting for character/rootpart/humanoid...")
+        if not rootPart then
+            print("AutoFarm: Character or RootPart not found.")
             task.wait(1)
             continue
         end
@@ -174,184 +175,160 @@ local function AutoFarmGold()
                                 :FindFirstChild("Gold")
 
         if not goldOreFolder then
-            warn("AutoFarmGold Error: Gold Ore folder path not found!")
-            warn("Path searched: Workspace.WORKSPACE_Interactables.Mining.OreDeposits.Gold")
-            _G.autoFarmGoldEnabled = false
-            break
+            print("AutoFarm: Gold Ore folder not found at Workspace.WORKSPACE_Interactables.Mining.OreDeposits.Gold")
+            task.wait(1)
+            continue
         end
 
         local children = goldOreFolder:GetChildren()
         if #children == 0 then
-            task.wait(0.5)
-            continue
+             task.wait(0.5)
+             continue
         end
 
-        local processedNode = false
-        for _, oreInstance in ipairs(children) do
-            if not _G.autoFarmGoldEnabled then break end
+        for _, oreModule in ipairs(children) do
+            if not _G.isAutoFarmingGold then break end
 
             local targetPart = nil
-            if oreInstance:IsA("Model") then
-                 targetPart = oreInstance.PrimaryPart or oreInstance:FindFirstChildWhichIsA("BasePart")
-            elseif oreInstance:IsA("BasePart") then
-                 targetPart = oreInstance
+            if oreModule:IsA("BasePart") then
+                 targetPart = oreModule
+            else
+                 targetPart = oreModule:FindFirstAncestorWhichIsA("BasePart")
+                 if not targetPart then
+                      targetPart = oreModule:FindFirstChildWhichIsA("BasePart")
+                 end
             end
 
-             if not targetPart then
-                 targetPart = oreInstance:FindFirstAncestorWhichIsA("BasePart")
-             end
-
-
             if targetPart and targetPart.CFrame then
-                 rootPart.CFrame = targetPart.CFrame * CFrame.new(0, 3.5, 0)
-                 task.wait(0.2)
+                rootPart.CFrame = targetPart.CFrame * CFrame.new(0, 3, 0)
+                task.wait(0.2)
 
-                 if not _G.autoFarmGoldEnabled then break end
+                if not _G.isAutoFarmingGold then break end
 
-                 local clickDetector = targetPart:FindFirstChildOfClass("ClickDetector")
-                 local prompt = targetPart:FindFirstChildOfClass("ProximityPrompt")
-                 local interacted = false
+                local clickDetector = targetPart:FindFirstChildOfClass("ClickDetector")
+                local prompt = targetPart:FindFirstChildOfClass("ProximityPrompt")
 
-                 if clickDetector then
-                     if fireclickdetector then
-                         fireclickdetector(clickDetector)
+                local interacted = false
+                if clickDetector then
+                    if fireclickdetector then
+                        fireclickdetector(clickDetector)
+                        interacted = true
+                    else
+                        print("AutoFarm Error: fireclickdetector function not available")
+                        _G.isAutoFarmingGold = false
+                        break
+                    end
+                elseif prompt then
+                     if fireproximityprompt then
+                         fireproximityprompt(prompt)
                          interacted = true
-                         print("AutoFarmGold: Fired ClickDetector on " .. targetPart.Name)
                      else
-                         warn("AutoFarmGold Error: 'fireclickdetector' function not available in your executor!")
-                         _G.autoFarmGoldEnabled = false; break
+                         print("AutoFarm Error: fireproximityprompt function not available")
+                          _G.isAutoFarmingGold = false
+                         break
                      end
-                 elseif prompt then
-                      if fireproximityprompt then
-                          fireproximityprompt(prompt)
-                          interacted = true
-                          print("AutoFarmGold: Fired ProximityPrompt on " .. targetPart.Name)
-                      else
-                          warn("AutoFarmGold Error: 'fireproximityprompt' function not available in your executor!")
-                          _G.autoFarmGoldEnabled = false; break
-                      end
-                 end
+                end
 
-                 if interacted then
-                     processedNode = true
-                     task.wait(0.5)
-                 else
-                     task.wait(0.1)
-                 end
+                if interacted then
+                    task.wait(0.5)
+                else
+                    task.wait(0.1)
+                end
 
             else
                  task.wait(0.05)
             end
         end
-        if not processedNode then
-        end
         task.wait(0.1)
     end
-    print("AutoFarmGold: Coroutine Stopped.")
-    StarterGui:SetCore("SendNotification", { Title = "Auto Farm", Text = "Gold farming stopped.", Duration = 3 })
+    print("AutoFarm: Stopped.")
 end
 
 
-local ToggleFarm = FarmSection:CreateToggle({
-    Name = "Auto Farm Gold Ore",
-    CurrentValue = _G.autoFarmGoldEnabled,
-    Flag = "ToggleAutoFarmGold",
+local Toggle = MainTab:CreateToggle({
+    Name = "Auto Farm",
+    CurrentValue = false,
+    Flag = "Toggle1",
     Callback = function(Value)
-        _G.autoFarmGoldEnabled = Value
-        print("Auto Farm Gold Ore Toggled:", Value)
+        _G.isAutoFarmingGold = Value
+        print("FARMING:", Value)
         if Value then
             task.spawn(AutoFarmGold)
-            StarterGui:SetCore("SendNotification", { Title = "Auto Farm", Text = "Gold farming started!", Duration = 3 })
-        else
         end
     end,
 })
 
+
 local TeleportTab = Window:CreateTab("🏝 Teleports", nil)
-local TeleportSection = TeleportTab:CreateSection("Locations")
 
-local function TeleportPlayer(targetPosition, locationName)
-    local player = LocalPlayer
-    local character = player.Character
-    local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-    if rootPart and humanoid and humanoid.Health > 0 and targetPosition then
-        rootPart.CFrame = CFrame.new(targetPosition) * CFrame.new(0, 3, 0)
-        print("Teleported to " .. locationName)
-        StarterGui:SetCore("SendNotification", {
-            Title = "Teleport", Text = "Teleported to " .. locationName .. ".", Duration = 3
-        })
-    else
-        print("Teleport failed: Character/RootPart not found, player dead, or targetPosition invalid.")
-        StarterGui:SetCore("SendNotification", {
-            Title = "Teleport Failed", Text = "Could not teleport to " .. locationName .. ".", Duration = 5
-        })
-    end
-end
-
-local Button1 = TeleportSection:CreateButton({
-    Name = "Bronze City (Mayor)",
+local Button1 = TeleportTab:CreateButton({
+    Name = "Bronze City",
     Callback = function()
-        local mayorNpc = Workspace:FindFirstChild("WORKSPACE_Interactables", true)
-                         :FindFirstChild("NPCs", true)
-                         :FindFirstChild("DonationMayor", true)
-        local targetPart = mayorNpc and mayorNpc:FindFirstChild("Head")
+        local player = LocalPlayer
+        local character = player.Character
+        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 
-        if targetPart and targetPart:IsA("BasePart") then
-            TeleportPlayer(targetPart.Position, "Bronze City (Mayor)")
+        local interactables = Workspace:FindFirstChild("WORKSPACE_Interactables")
+        local npcs = interactables and interactables:FindFirstChild("NPCs")
+        local mayor = npcs and npcs:FindFirstChild("DonationMayor")
+        local targetPart = mayor and mayor:FindFirstChild("Head")
+
+        if rootPart and targetPart then
+            rootPart.CFrame = targetPart.CFrame * CFrame.new(0, 3, 0)
+            print("Teleported to Bronze City Mayor's Head location.")
+             StarterGui:SetCore("SendNotification", {
+                  Title = "Teleport",
+                  Text = "Teleported to Bronze City.",
+                  Duration = 3
+             })
         else
-            warn("Bronze City Teleport Error: Could not find DonationMayor's Head part.")
+            print("Teleport failed: Could not find Character RootPart or Target Part.")
             StarterGui:SetCore("SendNotification", {
-                Title = "Teleport Failed", Text = "Could not find Bronze City target.", Duration = 5
+                Title = "Teleport Failed",
+                Text = "Could not find target location or character.",
+                Duration = 5
             })
         end
     end,
 })
 
-local Button2 = TeleportSection:CreateButton({
-    Name = "Puerto Dorado (Not Implemented)",
+local Button2 = TeleportTab:CreateButton({
+    Name = "Puerto Dorado",
     Callback = function()
         print("Puerto Dorado button clicked - no teleport logic added yet.")
-        StarterGui:SetCore("SendNotification", {
-            Title = "Teleport Info", Text = "Puerto Dorado teleport not yet implemented.", Duration = 5
-        })
     end,
 })
 
-local Button3 = TeleportSection:CreateButton({
-    Name = "Reservation Camp (Not Implemented)",
+local Button3 = TeleportTab:CreateButton({
+    Name = "Reservation Camp",
     Callback = function()
         print("Reservation Camp button clicked - no teleport logic added yet.")
-         StarterGui:SetCore("SendNotification", {
-            Title = "Teleport Info", Text = "Reservation Camp teleport not yet implemented.", Duration = 5
-        })
     end,
 })
 
 local MiscTab = Window:CreateTab("🎲 Misc", nil)
 local EspSection = MiscTab:CreateSection("Player ESP")
 
-_G.espEnabled = false
 local espLoopConnection = nil
 local playerHighlights = {}
+local entitiesPlayersFolder = Workspace:FindFirstChild("WORKSPACE_Entities") and Workspace.WORKSPACE_Entities:FindFirstChild("Players")
 
 local function UpdateESP()
-    if not _G.espEnabled then return end
+    if not _G.espEnabled or not entitiesPlayersFolder then return end
 
     local currentPlayers = {}
 
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            currentPlayers[player] = true
-            local character = player.Character
-            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    for _, playerEntity in ipairs(entitiesPlayersFolder:GetChildren()) do
+        if playerEntity.Name ~= LocalPlayer.Name then
+            currentPlayers[playerEntity.Name] = true
+            local characterModel = playerEntity
+            local humanoid = characterModel and characterModel:FindFirstChildOfClass("Humanoid")
 
-            if character and humanoid and humanoid.Health > 0 then
-                local highlight = playerHighlights[player]
+            if characterModel and humanoid and humanoid.Health > 0 then
+                local highlight = playerHighlights[playerEntity.Name]
                 if not highlight then
                     highlight = Instance.new("Highlight")
-                    highlight.Name = "ESP_Highlight_" .. player.Name
+                    highlight.Name = "ESP_Highlight_" .. playerEntity.Name
                     highlight.FillColor = Color3.fromRGB(0, 255, 0)
                     highlight.FillTransparency = 0.7
                     highlight.OutlineColor = Color3.fromRGB(0, 100, 0)
@@ -359,26 +336,26 @@ local function UpdateESP()
                     highlight.DepthMode = Enum.HighlightDepthMode.Occluded
                     highlight.Enabled = true
                     highlight.Parent = CoreGui
-                    playerHighlights[player] = highlight
-                    print("Created ESP Highlight for", player.Name)
+                    playerHighlights[playerEntity.Name] = highlight
+                    print("Created ESP Highlight for", playerEntity.Name)
                 end
                  if highlight.Parent ~= CoreGui then highlight.Parent = CoreGui end
-                 highlight.Adornee = character
+                 highlight.Adornee = characterModel
                  highlight.Enabled = true
             else
-                if playerHighlights[player] then
-                    playerHighlights[player].Enabled = false
-                    playerHighlights[player].Adornee = nil
+                if playerHighlights[playerEntity.Name] then
+                    playerHighlights[playerEntity.Name].Enabled = false
+                    playerHighlights[playerEntity.Name].Adornee = nil
                 end
             end
         end
     end
 
-     for player, highlight in pairs(playerHighlights) do
-         if not currentPlayers[player] then
-             print("Removing ESP Highlight for left player:", player.Name)
+     for playerName, highlight in pairs(playerHighlights) do
+         if not currentPlayers[playerName] then
+             print("Removing ESP Highlight for left player:", playerName)
              highlight:Destroy()
-             playerHighlights[player] = nil
+             playerHighlights[playerName] = nil
          end
      end
 end
@@ -391,7 +368,17 @@ local EspToggle = EspSection:CreateToggle({
         _G.espEnabled = Value
         print("Player ESP Toggled:", Value)
 
+        entitiesPlayersFolder = Workspace:FindFirstChild("WORKSPACE_Entities") and Workspace.WORKSPACE_Entities:FindFirstChild("Players")
+        if not entitiesPlayersFolder then
+             warn("ESP Error: Could not find Workspace.WORKSPACE_Entities.Players folder!")
+        end
+
         if Value then
+            if not entitiesPlayersFolder then
+                _G.espEnabled = false
+                StarterGui:SetCore("SendNotification", { Title = "ESP Error", Text = "Player folder not found!", Duration = 5 })
+                return
+            end
             if not (espLoopConnection and espLoopConnection.Connected) then
                  espLoopConnection = RunService.RenderStepped:Connect(UpdateESP)
                  print("ESP Update Loop Connected.")
@@ -409,129 +396,12 @@ local EspToggle = EspSection:CreateToggle({
                 print("ESP Update Loop Disconnected.")
             end
             print("Disabling all ESP Highlights.")
-            for player, highlight in pairs(playerHighlights) do
+            for playerName, highlight in pairs(playerHighlights) do
                 highlight:Destroy()
             end
             playerHighlights = {}
         end
          StarterGui:SetCore("SendNotification", { Title = "ESP", Text = "Player ESP " .. (Value and "Enabled" or "Disabled"), Duration = 3 })
-    end,
-})
-
-Players.PlayerRemoving:Connect(function(player)
-    if playerHighlights[player] then
-        print("Cleaning up ESP Highlight for leaving player:", player.Name)
-        playerHighlights[player]:Destroy()
-        playerHighlights[player] = nil
-    end
-end)
-
-local AimTab = Window:CreateTab("⚔️ Combat", nil)
-local AimSection = AimTab:CreateSection("Aim Assist")
-
-_G.aimbotEnabled = false
-local aimbotFOV = 50
-local aimbotLoopConnection = nil
-local fovCircle = nil
-local Camera = Workspace.CurrentCamera
-
-local FOVSlider = AimSection:CreateSlider({
-    Name = "FOV Size (Radius)",
-    Range = {10, 300},
-    Increment = 5,
-    Suffix = "px",
-    CurrentValue = aimbotFOV,
-    Flag = "aimfovslider",
-    Callback = function(Value)
-        aimbotFOV = Value
-        if fovCircle then
-            fovCircle.Radius = aimbotFOV
-        end
-    end,
-})
-
-local function AimbotLoop()
-    if not _G.aimbotEnabled or not Camera or not LocalPlayer then return end
-
-    local ViewportSize = Camera.ViewportSize
-    local CenterScreen = Vector2.new(ViewportSize.X / 2, ViewportSize.Y / 2)
-
-    if Drawing and Drawing.new then
-        if not fovCircle then
-            fovCircle = Drawing.new("Circle")
-            fovCircle.Color = Color3.fromRGB(255, 0, 0)
-            fovCircle.Thickness = 1
-            fovCircle.NumSides = 40
-            fovCircle.Filled = false
-            fovCircle.Radius = aimbotFOV
-            fovCircle.Visible = true
-            print("Aimbot: Created FOV Circle")
-        end
-        fovCircle.Position = CenterScreen
-        fovCircle.Visible = _G.aimbotEnabled
-        fovCircle.Radius = aimbotFOV
-    elseif fovCircle then
-        fovCircle.Visible = false
-    end
-
-    local currentTargetHead = nil
-    local minDist = aimbotFOV
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local character = player.Character
-            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-            local head = character and character:FindFirstChild("Head")
-
-            if head and humanoid and humanoid.Health > 0 then
-                local headPos3D = head.Position
-                local screenPosVec3, onScreen = Camera:WorldToViewportPoint(headPos3D)
-
-                if onScreen then
-                    local screenPosVec2 = Vector2.new(screenPosVec3.X, screenPosVec3.Y)
-                    local dist = (screenPosVec2 - CenterScreen).Magnitude
-
-                    if dist < minDist then
-                        minDist = dist
-                        currentTargetHead = head
-                    end
-                end
-            end
-        end
-    end
-
-    if currentTargetHead then
-    end
-end
-
-local AimbotToggle = AimSection:CreateToggle({
-    Name = "Enable Aim Assist",
-    CurrentValue = _G.aimbotEnabled,
-    Flag = "aimbottoggle",
-    Callback = function(Value)
-        _G.aimbotEnabled = Value
-        print("Aimbot Toggled:", Value)
-        Camera = Workspace.CurrentCamera
-
-        if Value then
-            if not (aimbotLoopConnection and aimbotLoopConnection.Connected) then
-                aimbotLoopConnection = RunService.RenderStepped:Connect(AimbotLoop)
-                print("Aimbot Loop Connected.")
-            end
-             AimbotLoop()
-             if fovCircle then fovCircle.Visible = true end
-        else
-            if aimbotLoopConnection and aimbotLoopConnection.Connected then
-                aimbotLoopConnection:Disconnect()
-                aimbotLoopConnection = nil
-                print("Aimbot Loop Disconnected.")
-            end
-            if fovCircle then
-                fovCircle.Visible = false
-                print("Aimbot FOV Circle Hidden.")
-            end
-        end
-         StarterGui:SetCore("SendNotification", { Title = "Aimbot", Text = "Aim Assist " .. (Value and "Enabled" or "Disabled"), Duration = 3 })
     end,
 })
 
