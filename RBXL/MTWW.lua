@@ -66,7 +66,7 @@ Rayfield:Notify({
     }
 })
 
-local Button = MainTab:CreateButton({
+local ButtonJump = MainTab:CreateButton({
     Name = "Infinite Jump Toggle",
     Callback = function()
         _G.infinjump = not _G.infinjump
@@ -245,7 +245,7 @@ local function AutoFarmGold()
 end
 
 
-local Toggle = MainTab:CreateToggle({
+local ToggleFarm = MainTab:CreateToggle({
     Name = "Auto Farm",
     CurrentValue = false,
     Flag = "Toggle1",
@@ -261,7 +261,7 @@ local Toggle = MainTab:CreateToggle({
 
 local TeleportTab = Window:CreateTab("🏝 Teleports", nil)
 
-local Button1 = TeleportTab:CreateButton({
+local ButtonTeleport1 = TeleportTab:CreateButton({
     Name = "Bronze City",
     Callback = function()
         local player = LocalPlayer
@@ -292,14 +292,14 @@ local Button1 = TeleportTab:CreateButton({
     end,
 })
 
-local Button2 = TeleportTab:CreateButton({
+local ButtonTeleport2 = TeleportTab:CreateButton({
     Name = "Puerto Dorado",
     Callback = function()
         print("Puerto Dorado button clicked - no teleport logic added yet.")
     end,
 })
 
-local Button3 = TeleportTab:CreateButton({
+local ButtonTeleport3 = TeleportTab:CreateButton({
     Name = "Reservation Camp",
     Callback = function()
         print("Reservation Camp button clicked - no teleport logic added yet.")
@@ -360,13 +360,12 @@ local function UpdateESP()
      end
 end
 
-local EspToggle = EspSection:CreateToggle({
-    Name = "Enable Player ESP (Highlight)",
-    CurrentValue = _G.espEnabled,
-    Flag = "ToggleESP",
-    Callback = function(Value)
-        _G.espEnabled = Value
-        print("Player ESP Toggled:", Value)
+local EspButton = EspSection:CreateButton({
+    Name = "Toggle Player ESP",
+    Callback = function()
+        _G.espEnabled = not _G.espEnabled
+        local Value = _G.espEnabled
+        print("Player ESP Toggled via Button:", Value)
 
         entitiesPlayersFolder = Workspace:FindFirstChild("WORKSPACE_Entities") and Workspace.WORKSPACE_Entities:FindFirstChild("Players")
         if not entitiesPlayersFolder then
