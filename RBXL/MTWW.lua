@@ -16,7 +16,6 @@ _G.infinjump = false
 _G.infinJumpStarted = nil
 _G.isAutoFarmingGold = false
 _G.espEnabled = false
-_G.espHandlerActive = false -- Track if ESP handler is active
 
 local windowName = "MTWW - Public Game"
 if game.PrivateServerId ~= "" and game.PrivateServerId ~= nil then
@@ -74,13 +73,11 @@ local ButtonJump = MainTab:CreateButton({
 
         if _G.infinJumpStarted == nil then
             _G.infinJumpStarted = true
-
             StarterGui:SetCore("SendNotification", {
                 Title = "Youtube Hub",
                 Text = "Infinite Jump Activated!",
                 Duration = 5
             })
-
             local plr = LocalPlayer
             local m = plr:GetMouse()
             m.KeyDown:connect(function(k)
@@ -385,11 +382,10 @@ local EspButton = EspSection:CreateButton({
                 StarterGui:SetCore("SendNotification", { Title = "ESP Error", Text = "Player folder not found!", Duration = 5 })
                 return
             end
-            if not _G.espHandlerActive then
-                _G.espHandlerActive = true
-                espLoopConnection = RunService.RenderStepped:Connect(UpdateESP)
-                print("ESP Update Loop Connected.")
-                UpdateESP()
+            if not (espLoopConnection and espLoopConnection.Connected) then
+                 espLoopConnection = RunService.RenderStepped:Connect(UpdateESP)
+                 print("ESP Update Loop Connected.")
+                 UpdateESP()
             end
              for _, highlight in pairs(playerHighlights) do
                  if highlight.Adornee then
@@ -400,7 +396,6 @@ local EspButton = EspSection:CreateButton({
             if espLoopConnection and espLoopConnection.Connected then
                 espLoopConnection:Disconnect()
                 espLoopConnection = nil
-                _G.espHandlerActive = false
                 print("ESP Update Loop Disconnected.")
             end
             print("Disabling all ESP Highlights.")
