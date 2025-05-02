@@ -15,7 +15,10 @@ local LocalPlayer = Players.LocalPlayer
 _G.infinjump = false
 _G.infinJumpStarted = nil
 _G.isAutoFarmingGold = false
-_G.espEnabled = false
+_G.playerEspEnabled = false
+_G.animalEspEnabled = false
+_G.oreEspEnabled = false
+_G.axeAuraEnabled = false
 
 local windowName = "MTWW - Public Game"
 if game.PrivateServerId ~= "" and game.PrivateServerId ~= nil then
@@ -314,96 +317,276 @@ local MiscTab = Window:CreateTab("🎲 Misc", nil)
 
 local espLoopConnection = nil
 local playerHighlights = {}
-local entitiesPlayersFolder = Workspace:FindFirstChild("WORKSPACE_Entities") and Workspace.WORKSPACE_Entities:FindFirstChild("Players")
+local animalHighlights = {}
+local oreHighlights = {}
+local workspaceEntities = Workspace:FindFirstChild("WORKSPACE_Entities")
+local entitiesPlayersFolder = workspaceEntities and workspaceEntities:FindFirstChild("Players")
+local entitiesAnimalsFolder = workspaceEntities and workspaceEntities:FindFirstChild("Animals")
+local entitiesDeadAnimalsFolder = workspaceEntities and workspaceEntities:FindFirstChild("DeadAnimals")
+local goldOreFolder = Workspace:FindFirstChild("WORKSPACE_Interactables") and Workspace.WORKSPACE_Interactables:FindFirstChild("Mining") and Workspace.WORKSPACE_Interactables.Mining:FindFirstChild("OreDeposits") and Workspace.WORKSPACE_Interactables.Mining.OreDeposits:FindFirstChild("Gold")
 
-local function UpdateESP()
-    if not _G.espEnabled or not entitiesPlayersFolder then return end
+local function UpdateAllESP()
+    if not (_G.playerEspEnabled or _G.animalEspEnabled or _G.oreEspEnabled) then return end
 
     local currentPlayers = {}
+    local currentAnimals = {}
+    local currentOres = {}
 
-    for _, playerEntity in ipairs(entitiesPlayersFolder:GetChildren()) do
-        if playerEntity.Name ~= LocalPlayer.Name then
-            currentPlayers[playerEntity.Name] = true
-            local characterModel = playerEntity
-            local humanoid = characterModel and characterModel:FindFirstChildOfClass("Humanoid")
+    if _G.playerEspEnabled and entitiesPlayersFolder then
+        for _, playerEntity in ipairs(entitiesPlayersFolder:GetChildren()) do
+            if playerEntity.Name ~= LocalPlayer.Name then
+                currentPlayers[playerEntity.Name] = true
+                local characterModel = playerEntity
+                local humanoid = characterModel and characterModel:FindFirstChildOfClass("Humanoid")
 
-            if characterModel and humanoid and humanoid.Health > 0 then
-                local highlight = playerHighlights[playerEntity.Name]
-                if not highlight then
-                    highlight = Instance.new("Highlight")
-                    highlight.Name = "ESP_Highlight_" .. playerEntity.Name
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                    highlight.FillTransparency = 0.7
-                    highlight.OutlineColor = Color3.fromRGB(150, 0, 0)
-                    highlight.OutlineTransparency = 0.2
-                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Changed to AlwaysOnTop
+                if characterModel and humanoid and humanoid.Health > 0 then
+                    local highlight = playerHighlights[playerEntity.Name]
+                    if not highlight or not highlight.Parent then
+                        highlight = Instance.new("Highlight")
+                        highlight.Name = "PlayerESP_" .. playerEntity.Name
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.FillTransparency = 0.7
+                        highlight.OutlineColor = Color3.fromRGB(150, 0, 0)
+                        highlight.OutlineTransparency = 0.2
+                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        highlight.Parent = CoreGui
+                        playerHighlights[playerEntity.Name] = highlight
+                    end
+                    highlight.Adornee = characterModel
                     highlight.Enabled = true
-                    highlight.Parent = CoreGui
-                    playerHighlights[playerEntity.Name] = highlight
-                    print("Created ESP Highlight for", playerEntity.Name)
-                end
-                 if highlight.Parent ~= CoreGui then highlight.Parent = CoreGui end
-                 highlight.Adornee = characterModel
-                 highlight.Enabled = true
-            else
-                if playerHighlights[playerEntity.Name] then
-                    playerHighlights[playerEntity.Name].Enabled = false
-                    playerHighlights[playerEntity.Name].Adornee = nil
+                else
+                    if playerHighlights[playerEntity.Name] and playerHighlights[playerEntity.Name].Parent then
+                        playerHighlights[playerEntity.Name].Enabled = false
+                    end
                 end
             end
         end
     end
+    for playerName, highlight in pairs(playerHighlights) do
+        if highlight and highlight.Parent and (not currentPlayers[playerName] or not _G.playerEspEnabled) then
+            highlight:Destroy()
+            playerHighlights[playerName] = nil
+        end
+    end
 
-     for playerName, highlight in pairs(playerHighlights) do
-         if not currentPlayers[playerName] then
-             print("Removing ESP Highlight for left player:", playerName)
-             highlight:Destroy()
-             playerHighlights[playerName] = nil
-         end
-     end
+    local function ProcessAnimalFolder(folder, isAlive)
+        if not folder then return end
+        for _, animalEntity in ipairs(folder:GetChildren()) do
+            local uniqueID = folder.Name .. "_" .. animalEntity.Name .. "_" .. tostring(animalEntity:GetHashCode())
+            currentAnimals[uniqueID] = true
+            local animalModel = animalEntity
+            local humanoid = animalModel and animalModel:FindFirstChildOfClass("Humanoid")
+
+            if animalModel and (humanoid or not isAlive) then
+                 local highlight = animalHighlights[uniqueID]
+                 if not highlight or not highlight.Parent then
+                     highlight = Instance.new("Highlight")
+                     highlight.Name = "AnimalESP_" .. uniqueID
+                     highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                     highlight.FillTransparency = 0.7
+                     highlight.OutlineColor = Color3.fromRGB(0, 150, 0)
+                     highlight.OutlineTransparency = 0.2
+                     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                     highlight.Parent = CoreGui
+                     animalHighlights[uniqueID] = highlight
+                 end
+                 highlight.Adornee = animalModel
+                 highlight.Enabled = true
+            else
+                 if animalHighlights[uniqueID] and animalHighlights[uniqueID].Parent then
+                     animalHighlights[uniqueID].Enabled = false
+                 end
+            end
+        end
+    end
+
+    if _G.animalEspEnabled then
+        ProcessAnimalFolder(entitiesAnimalsFolder, true)
+        ProcessAnimalFolder(entitiesDeadAnimalsFolder, false)
+    end
+    for animalID, highlight in pairs(animalHighlights) do
+        if highlight and highlight.Parent and (not currentAnimals[animalID] or not _G.animalEspEnabled) then
+            highlight:Destroy()
+            animalHighlights[animalID] = nil
+        end
+    end
+
+    if _G.oreEspEnabled and goldOreFolder then
+        for _, oreModule in ipairs(goldOreFolder:GetChildren()) do
+            local targetPart = nil
+            if oreModule:IsA("BasePart") then
+                 targetPart = oreModule
+            elseif oreModule:IsA("Model") then
+                 targetPart = oreModule.PrimaryPart or oreModule:FindFirstChildWhichIsA("BasePart")
+            end
+            if not targetPart then targetPart = oreModule:FindFirstAncestorWhichIsA("BasePart") end
+
+            if targetPart then
+                local uniqueID = "Ore_" .. oreModule.Name .. "_" .. tostring(oreModule:GetHashCode())
+                currentOres[uniqueID] = true
+                local highlight = oreHighlights[uniqueID]
+                if not highlight or not highlight.Parent then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "OreESP_" .. uniqueID
+                    highlight.FillColor = Color3.fromRGB(255, 255, 0)
+                    highlight.FillTransparency = 0.7
+                    highlight.OutlineColor = Color3.fromRGB(150, 150, 0)
+                    highlight.OutlineTransparency = 0.2
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = CoreGui
+                    oreHighlights[uniqueID] = highlight
+                end
+                highlight.Adornee = targetPart
+                highlight.Enabled = true
+            end
+        end
+    end
+    for oreID, highlight in pairs(oreHighlights) do
+        if highlight and highlight.Parent and (not currentOres[oreID] or not _G.oreEspEnabled) then
+            highlight:Destroy()
+            oreHighlights[oreID] = nil
+        end
+    end
+
 end
 
-local EspButton = MiscTab:CreateButton({
+local function StartStopESPUpdates()
+    if (_G.playerEspEnabled or _G.animalEspEnabled or _G.oreEspEnabled) then
+        if not (espLoopConnection and espLoopConnection.Connected) then
+             workspaceEntities = Workspace:FindFirstChild("WORKSPACE_Entities")
+             entitiesPlayersFolder = workspaceEntities and workspaceEntities:FindFirstChild("Players")
+             entitiesAnimalsFolder = workspaceEntities and workspaceEntities:FindFirstChild("Animals")
+             entitiesDeadAnimalsFolder = workspaceEntities and workspaceEntities:FindFirstChild("DeadAnimals")
+             goldOreFolder = Workspace:FindFirstChild("WORKSPACE_Interactables") and Workspace.WORKSPACE_Interactables:FindFirstChild("Mining") and Workspace.WORKSPACE_Interactables.Mining:FindFirstChild("OreDeposits") and Workspace.WORKSPACE_Interactables.Mining.OreDeposits:FindFirstChild("Gold")
+             if not workspaceEntities then warn("ESP Warning: WORKSPACE_Entities not found!") end
+             if not goldOreFolder then warn("ESP Warning: Gold Ore folder not found!") end
+             espLoopConnection = RunService.RenderStepped:Connect(UpdateAllESP)
+             print("ESP Update Loop Started.")
+        end
+    else
+        if (espLoopConnection and espLoopConnection.Connected) then
+            espLoopConnection:Disconnect()
+            espLoopConnection = nil
+            print("ESP Update Loop Stopped.")
+            for playerName, highlight in pairs(playerHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
+            playerHighlights = {}
+            for animalID, highlight in pairs(animalHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
+            animalHighlights = {}
+            for oreID, highlight in pairs(oreHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
+            oreHighlights = {}
+        end
+    end
+end
+
+local PlayerEspButton = MiscTab:CreateButton({
     Name = "Toggle Player ESP",
     Callback = function()
-        _G.espEnabled = not _G.espEnabled
-        local Value = _G.espEnabled
-        print("Player ESP Toggled via Button:", Value)
-
-        entitiesPlayersFolder = Workspace:FindFirstChild("WORKSPACE_Entities") and Workspace.WORKSPACE_Entities:FindFirstChild("Players")
-        if not entitiesPlayersFolder then
-             warn("ESP Error: Could not find Workspace.WORKSPACE_Entities.Players folder!")
-        end
-
-        if Value then
-            if not entitiesPlayersFolder then
-                _G.espEnabled = false
-                StarterGui:SetCore("SendNotification", { Title = "ESP Error", Text = "Player folder not found!", Duration = 5 })
-                return
-            end
-            if not (espLoopConnection and espLoopConnection.Connected) then
-                 espLoopConnection = RunService.RenderStepped:Connect(UpdateESP)
-                 print("ESP Update Loop Connected.")
-                 UpdateESP()
-            end
-             for _, highlight in pairs(playerHighlights) do
-                 if highlight.Adornee then
-                     highlight.Enabled = true
-                 end
-             end
-        else
-            if espLoopConnection and espLoopConnection.Connected then
-                espLoopConnection:Disconnect()
-                espLoopConnection = nil
-                print("ESP Update Loop Disconnected.")
-            end
-            print("Disabling all ESP Highlights.")
-            for playerName, highlight in pairs(playerHighlights) do
-                highlight:Destroy()
-            end
+        _G.playerEspEnabled = not _G.playerEspEnabled
+        if not _G.playerEspEnabled then
+            for playerName, highlight in pairs(playerHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
             playerHighlights = {}
         end
-         StarterGui:SetCore("SendNotification", { Title = "ESP", Text = "Player ESP " .. (Value and "Enabled" or "Disabled"), Duration = 3 })
+        StartStopESPUpdates()
+        StarterGui:SetCore("SendNotification", { Title = "Player ESP", Text = "Player ESP " .. (_G.playerEspEnabled and "Enabled" or "Disabled"), Duration = 3 })
     end,
 })
+
+local AnimalEspButton = MiscTab:CreateButton({
+    Name = "Toggle Animal ESP",
+    Callback = function()
+        _G.animalEspEnabled = not _G.animalEspEnabled
+         if not _G.animalEspEnabled then
+            for animalID, highlight in pairs(animalHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
+            animalHighlights = {}
+        end
+        StartStopESPUpdates()
+        StarterGui:SetCore("SendNotification", { Title = "Animal ESP", Text = "Animal ESP " .. (_G.animalEspEnabled and "Enabled" or "Disabled"), Duration = 3 })
+    end,
+})
+
+local OreEspButton = MiscTab:CreateButton({
+    Name = "Toggle Ore ESP",
+    Callback = function()
+        _G.oreEspEnabled = not _G.oreEspEnabled
+         if not _G.oreEspEnabled then
+            for oreID, highlight in pairs(oreHighlights) do if highlight and highlight.Parent then highlight:Destroy() end end
+            oreHighlights = {}
+        end
+        StartStopESPUpdates()
+        StarterGui:SetCore("SendNotification", { Title = "Ore ESP", Text = "Ore ESP " .. (_G.oreEspEnabled and "Enabled" or "Disabled"), Duration = 3 })
+    end,
+})
+
+
+local AuraSection = MiscTab:CreateSection("Auras")
+local axeAuraLoopConnection = nil
+local currentAxeHitbox = nil
+local originalAxeHitboxSize = nil
+local targetAxeNames = {["Tier1Axe"] = true, ["Tier2Axe"] = true, ["Tier3Axe"] = true}
+
+local function UpdateAxeAura()
+    if not _G.axeAuraEnabled then return end
+
+    local character = LocalPlayer.Character
+    if not character then return end
+
+    local currentTool = character:FindFirstChildOfClass("Tool")
+    local hitbox = nil
+
+    if currentTool and targetAxeNames[currentTool.Name] then
+        local handle = currentTool:FindFirstChild("Handle")
+        if handle then
+            hitbox = handle:FindFirstChild("HitBox")
+        end
+    end
+
+    if hitbox and hitbox:IsA("BasePart") then
+        if hitbox ~= currentAxeHitbox then
+            if currentAxeHitbox and originalAxeHitboxSize then
+                 if currentAxeHitbox.Parent then currentAxeHitbox.Size = originalAxeHitboxSize end
+            end
+            currentAxeHitbox = hitbox
+            originalAxeHitboxSize = hitbox.Size
+        end
+        hitbox.Size = Vector3.new(10, 10, 10)
+    elseif currentAxeHitbox then
+         if originalAxeHitboxSize and currentAxeHitbox.Parent then
+             currentAxeHitbox.Size = originalAxeHitboxSize
+         end
+         currentAxeHitbox = nil
+         originalAxeHitboxSize = nil
+    end
+end
+
+if AuraSection then
+    local AxeAuraButton = AuraSection:CreateButton({
+        Name = "Axe Aura",
+        Callback = function()
+            _G.axeAuraEnabled = not _G.axeAuraEnabled
+            if _G.axeAuraEnabled then
+                 if not (axeAuraLoopConnection and axeAuraLoopConnection.Connected) then
+                     axeAuraLoopConnection = RunService.Heartbeat:Connect(UpdateAxeAura)
+                     print("Axe Aura Loop Started.")
+                 end
+            else
+                 if (axeAuraLoopConnection and axeAuraLoopConnection.Connected) then
+                     axeAuraLoopConnection:Disconnect()
+                     axeAuraLoopConnection = nil
+                     print("Axe Aura Loop Stopped.")
+                     if currentAxeHitbox and originalAxeHitboxSize then
+                         if currentAxeHitbox.Parent then currentAxeHitbox.Size = originalAxeHitboxSize end
+                         currentAxeHitbox = nil
+                         originalAxeHitboxSize = nil
+                     end
+                 end
+            end
+            StarterGui:SetCore("SendNotification", { Title = "Axe Aura", Text = "Axe Aura " .. (_G.axeAuraEnabled and "Enabled" or "Disabled"), Duration = 3 })
+        end,
+    })
+    if not AxeAuraButton then
+        warn("Failed to create Axe Aura button!")
+    end
+else
+    warn("Failed to create Aura section!")
+end
 
