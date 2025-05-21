@@ -9,34 +9,34 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark background */
-            color: #E5E7EB; /* Light text */
+            background-color: #111827;
+            color: #E5E7EB;
         }
         .form-container {
-            background-color: #1F2937; /* Slightly lighter card background */
-            border: 1px solid #374151; /* Subtle border */
+            background-color: #1F2937;
+            border: 1px solid #374151;
         }
         .form-input {
-            background-color: #374151; /* Input background */
-            border-color: #4B5563; /* Input border */
-            color: #E5E7EB; /* Input text color */
+            background-color: #374151; 
+            border-color: #4B5563; 
+            color: #E5E7EB;
         }
         .form-input::placeholder {
-            color: #9CA3AF; /* Placeholder text color */
+            color: #9CA3AF;
         }
         .form-input:focus {
-            border-color: #3B82F6; /* Focus border color (blue) */
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Focus shadow */
+            border-color: #3B82F6; 
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); 
         }
         .btn-primary {
-            background-color: #2563EB; /* Primary button color (blue) */
+            background-color: #2563EB;
             transition: background-color 0.3s ease;
         }
         .btn-primary:hover {
-            background-color: #1D4ED8; /* Darker blue on hover */
+            background-color: #1D4ED8; 
         }
          .link-style {
-            color: #60A5FA; /* Lighter blue for links */
+            color: #60A5FA; 
         }
         .link-style:hover {
             color: #3B82F6;
@@ -78,22 +78,19 @@
     </div>
 
     <script>
-        // Disable right-click context menu
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
 
-        // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, F12
         document.addEventListener('keydown', function(event) {
             if (event.key === 'F12' || 
                 (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) ||
-                (event.ctrlKey && event.key === 'U' || event.key === 'u') // Disable Ctrl+U for view source
+                (event.ctrlKey && event.key === 'U' || event.key === 'u')
             ) {
                 event.preventDefault();
             }
         });
 
-        // Handle form submission (placeholder)
         const registerForm = document.getElementById('registerForm');
         if (registerForm) {
             registerForm.addEventListener('submit', function(event) {
@@ -106,7 +103,6 @@
                     alert('Passwords do not match!');
                     return;
                 }
-                // In a real app, you would send this data to your server
                 console.log('Registration attempt:', { username });
                 alert('Registration functionality would be handled here.\\nUsername: ' + username);
             });
