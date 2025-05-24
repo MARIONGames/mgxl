@@ -1,112 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Sky Battles</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-            color: #E5E7EB;
-        }
-        .form-container {
-            background-color: #1F2937;
-            border: 1px solid #374151;
-        }
-        .form-input {
-            background-color: #374151; 
-            border-color: #4B5563; 
-            color: #E5E7EB;
-        }
-        .form-input::placeholder {
-            color: #9CA3AF;
-        }
-        .form-input:focus {
-            border-color: #3B82F6; 
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); 
-        }
-        .btn-primary {
-            background-color: #2563EB;
-            transition: background-color 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: #1D4ED8; 
-        }
-         .link-style {
-            color: #60A5FA; 
-        }
-        .link-style:hover {
-            color: #3B82F6;
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - Sky Battles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #111827;
+      color: #E5E7EB;
+    }
+    .form-container {
+      background-color: #1F2937;
+      border: 1px solid #374151;
+    }
+    .form-input {
+      background-color: #374151;
+      border-color: #4B5563;
+      color: #E5E7EB;
+    }
+    .form-input::placeholder {
+      color: #9CA3AF;
+    }
+    .form-input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+    .btn-primary {
+      background-color: #2563EB;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #1D4ED8;
+    }
+    .link-style {
+      color: #60A5FA;
+    }
+    .link-style:hover {
+      color: #3B82F6;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body class="flex items-center justify-center min-h-screen antialiased py-8">
+  <div class="form-container p-8 md:p-12 rounded-xl shadow-2xl w-full max-w-md">
+    <h1 class="text-3xl font-bold text-center mb-2 text-white">Sky Battles</h1>
+    <h2 class="text-2xl font-semibold text-center mb-8 text-gray-300">Create Your Account</h2>
+    <form id="registerForm">
+      <div class="mb-6">
+        <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
+        <input type="text" id="username" name="username" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Choose a username" required>
+      </div>
+      <div class="mb-6">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
+        <input type="password" id="password" name="password" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Create a password" required>
+      </div>
+      <div class="mb-8">
+        <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-300">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Confirm your password" required>
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline">Register</button>
+    </form>
+    <p class="mt-8 text-center text-sm text-gray-400">
+      Already have an account?
+      <a href="login.html" class="font-medium link-style">Login here</a>
+    </p>
+  </div>
+  <script>
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) || (e.ctrlKey && e.key.toUpperCase() === 'U')) {
+        e.preventDefault();
+      }
+    });
 
-    <div class="form-container p-8 md:p-12 rounded-xl shadow-2xl w-full max-w-md">
-        <h1 class="text-3xl font-bold text-center mb-2 text-white">Sky Battles</h1>
-        <h2 class="text-2xl font-semibold text-center mb-8 text-gray-300">Create Your Account</h2>
-        
-        <form id="registerForm">
-            <div class="mb-6">
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
-                <input type="text" id="username" name="username" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Choose a username" required>
-            </div>
-            
-            <div class="mb-6">
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
-                <input type="password" id="password" name="password" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Create a password" required>
-            </div>
-
-            <div class="mb-8">
-                <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-300">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" class="form-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Confirm your password" required>
-            </div>
-            
-            <button type="submit" class="w-full btn-primary text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-                Register
-            </button>
-        </form>
-        
-        <p class="mt-8 text-center text-sm text-gray-400">
-            Already have an account? 
-            <a href="login.html" class="font-medium link-style">Login here</a>
-        </p>
-    </div>
-
-    <script>
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-        });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'F12' || 
-                (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) ||
-                (event.ctrlKey && event.key === 'U' || event.key === 'u')
-            ) {
-                event.preventDefault();
-            }
-        });
-
-        const registerForm = document.getElementById('registerForm');
-        if (registerForm) {
-            registerForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent actual form submission
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
-                    return;
-                }
-                console.log('Registration attempt:', { username });
-                alert('Registration functionality would be handled here.\\nUsername: ' + username);
-            });
-        }
-    </script>
+    const registerForm = document.getElementById('registerForm');
+    registerForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      if (password !== confirm) {
+        alert('Passwords do not match');
+        return;
+      }
+      const displayname = username;
+      const res = await fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, displayname })
+      });
+      const result = await res.json();
+      alert(result.message);
+    });
+  </script>
 </body>
 </html>
